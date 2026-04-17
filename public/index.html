@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>分析人 Skill - 三层递进训练法</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* ========== Acid Street Design System ========== */
+    :root {
+      --acid-cyan: #00f3ff;
+      --acid-pink: #ff00ff;
+      --acid-lime: #39ff14;
+      --acid-orange: #ff6600;
+      --surface-0: #0a0a0a;
+      --surface-1: #141414;
+      --surface-2: #1a1a1a;
+      --surface-3: #222222;
+      --text-primary: #f0f0f0;
+      --text-secondary: #a0a0a0;
+      --text-muted: #6a6a6a;
+      --border-default: #333333;
+      --border-accent: #00f3ff;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Source Serif 4', Georgia, serif;
+      background: var(--surface-0);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    h1, h2, h3, h4, .brand, button {
+      font-family: 'Space Grotesk', Arial, sans-serif;
+      font-weight: 700;
+    }
+
+    code, .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ========== Hard Borders & Glow ========== */
+    .border-acid { border: 2px solid var(--border-accent); }
+    .border-default { border: 2px solid var(--border-default); }
+    .border-dashed { border: 2px dashed var(--border-default); }
+
+    .hard-shadow {
+      box-shadow: 4px 4px 0 var(--surface-3);
+      transition: all 0.15s ease-out;
+    }
+    .hard-shadow:hover {
+      box-shadow: 5px 5px 0 var(--surface-3), 0 0 20px var(--acid-cyan);
+    }
+    .hard-shadow:active {
+      box-shadow: 2px 2px 0 var(--surface-3);
+      transform: translate(2px, 2px);
+    }
+
+    .glow-cyan { box-shadow: 0 0 10px var(--acid-cyan), 0 0 20px rgba(0,243,255,0.4); }
+    .glow-pink { box-shadow: 0 0 10px var(--acid-pink), 0 0 20px rgba(255,0,255,0.4); }
+    .glow-lime { box-shadow: 0 0 10px var(--acid-lime), 0 0 20px rgba(57,255,20,0.4); }
+    .glow-orange { box-shadow: 0 0 10px var(--acid-orange), 0 0 20px rgba(255,102,0,0.4); }
+
+    /* ========== Layout ========== */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 2px solid var(--border-default);
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 30px var(--acid-cyan);
+    }
+
+    .header .subtitle {
+      color: var(--text-secondary);
+      font-size: 1.125rem;
+    }
+
+    .level-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      background: var(--acid-pink);
+      color: #000;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+
+    /* ========== Grid ========== */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 1024px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ========== Cards ========== */
+    .card {
+      background: var(--surface-1);
+      padding: 1.25rem;
+      border: 2px solid var(--border-default);
+      margin-bottom: 1.5rem;
+    }
+    .card:hover {
+      border-color: var(--acid-cyan);
+    }
+
+    .card-title {
+      font-size: 1.125rem;
+      color: var(--acid-cyan);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card-title::before {
+      content: '>';
+      color: var(--acid-pink);
+      font-size: 1.25rem;
+    }
+
+    /* ========== Level Selector ========== */
+    .level-selector {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .level-btn {
+      flex: 1;
+      padding: 0.75rem;
+      background: var(--surface-2);
+      border: 2px solid var(--border-default);
+      color: var(--text-primary);
+      cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.875rem;
+      transition: all 0.15s ease-out;
+    }
+
+    .level-btn:hover {
+      border-color: var(--acid-orange);
+    }
+
+    .level-btn.active {
+      background: var(--acid-orange);
+      color: #000;
+      border-color: var(--acid-orange);
+      box-shadow: 0 0 15px rgba(255,102,0,0.4);
+    }
+
+    /* ========== Forms ========== */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--surface-0);
+      border: 2px solid var(--border-default);
+      color: var(--text-primary);
+      font-family: 'Source Serif 4', serif;
+      font-size: 0.9375rem;
+      transition: all 0.15s ease-out;
+      resize: vertical;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--acid-cyan);
+      box-shadow: 0 0 15px rgba(0,243,255,0.4);
+    }
+
+    textarea {
+      min-height: 80px;
+    }
+
+    /* ========== Fact Item ========== */
+    .fact-item {
+      background: var(--surface-2);
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      border-left: 4px solid var(--acid-cyan);
+      position: relative;
+    }
+
+    .fact-item .category {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      font-size: 0.625rem;
+      padding: 0.125rem 0.375rem;
+      background: var(--surface-3);
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .fact-item textarea {
+      background: transparent;
+      border: none;
+      padding: 0;
+      min-height: auto;
+      font-size: 0.9375rem;
+    }
+
+    .fact-item .delete-btn {
+      position: absolute;
+      top: 0.5rem;
+      left: 0.5rem;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1rem;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .fact-item:hover .delete-btn {
+      opacity: 1;
+    }
+
+    .fact-item .delete-btn:hover {
+      color: var(--acid-pink);
+    }
+
+    /* ========== Buttons ========== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      font-size: 0.9375rem;
+      cursor: pointer;
+      border: 2px solid;
+      transition: all 0.15s ease-out;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-primary {
+      background: var(--acid-cyan);
+      color: #000;
+      border-color: var(--acid-cyan);
+      width: 100%;
+    }
+    .btn-primary:hover {
+      background: #fff;
+      border-color: #fff;
+      box-shadow: 0 0 30px var(--acid-cyan);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--acid-cyan);
+      border-color: var(--acid-cyan);
+    }
+    .btn-secondary:hover {
+      background: rgba(0,243,255,0.1);
+    }
+
+    .btn-add {
+      width: 100%;
+      border-style: dashed;
+      color: var(--text-muted);
+    }
+    .btn-add:hover {
+      border-color: var(--acid-lime);
+      color: var(--acid-lime);
+    }
+
+    .btn-small {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.75rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border-default);
+      color: var(--text-secondary);
+    }
+
+    /* ========== Results Section ========== */
+    #results {
+      display: none;
+    }
+    #results.show {
+      display: block;
+    }
+
+    .result-section {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: var(--surface-1);
+      border: 2px solid var(--border-default);
+    }
+
+    .result-section h3 {
+      color: var(--acid-orange);
+      margin-bottom: 1rem;
+      font-size: 1.25rem;
+    }
+
+    .result-section h4 {
+      color: var(--acid-cyan);
+      margin: 1rem 0 0.5rem;
+      font-size: 1rem;
+    }
+
+    .trait-tag {
+      display: inline-block;
+      padding: 0.375rem 0.75rem;
+      margin: 0.25rem;
+      background: var(--acid-lime);
+      color: #000;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .weakness-tag {
+      background: var(--acid-pink);
+      color: #000;
+    }
+
+    .evidence-item {
+      background: var(--surface-2);
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      border-left: 3px solid var(--acid-cyan);
+      font-size: 0.9375rem;
+    }
+
+    .evidence-item::before {
+      content: '证据：';
+      color: var(--acid-cyan);
+      font-weight: bold;
+    }
+
+    .contradiction-box {
+      background: var(--surface-2);
+      padding: 1rem;
+      margin: 0.75rem 0;
+      border: 2px solid var(--acid-pink);
+    }
+
+    .contradiction-box .surface {
+      color: var(--acid-pink);
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    .contradiction-box .root {
+      color: var(--acid-lime);
+      margin-bottom: 0.25rem;
+    }
+    .contradiction-box .evidence {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      font-style: italic;
+    }
+
+    .intervention-box {
+      padding: 1rem;
+      margin: 0.5rem 0;
+      border-left: 4px solid;
+    }
+    .intervention-box.positive {
+      border-color: var(--acid-lime);
+      background: rgba(57,255,20,0.05);
+    }
+    .intervention-box.negative {
+      border-color: var(--acid-pink);
+      background: rgba(255,0,255,0.05);
+    }
+
+    .warning-box {
+      background: rgba(255,0,255,0.1);
+      border: 2px solid var(--acid-pink);
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+    .warning-box::before {
+      content: '⚠️ 警告：';
+      color: var(--acid-pink);
+      font-weight: bold;
+    }
+
+    /* ========== Level Guide ========== */
+    .level-guide {
+      background: var(--surface-2);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid var(--acid-orange);
+      font-size: 0.875rem;
+    }
+    .level-guide strong {
+      color: var(--acid-orange);
+    }
+
+    /* ========== Training Tracker ========== */
+    .tracker {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .track-day {
+      text-align: center;
+      padding: 0.5rem;
+      background: var(--surface-2);
+      border: 2px solid var(--border-default);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .track-day.done {
+      background: var(--acid-lime);
+      color: #000;
+      border-color: var(--acid-lime);
+    }
+    .track-day:hover:not(.done) {
+      border-color: var(--acid-cyan);
+    }
+    .track-day .day-num {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .track-day.done .day-num {
+      color: #000;
+    }
+
+    /* ========== Loading ========== */
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: var(--acid-cyan);
+    }
+    .loading::after {
+      content: '...';
+      animation: dots 1.5s infinite;
+    }
+    @keyframes dots {
+      0%,20% { content: '.'; }
+      40% { content: '..'; }
+      60%,100% { content: '...'; }
+    }
+
+    /* ========== Scanline ========== */
+    .scanline {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.1) 2px,
+        rgba(0,0,0,0.1) 4px
+      );
+      z-index: 9999;
+      opacity: 0.3;
+    }
+  </style>
+</head>
+<body>
+  <div class="scanline"></div>
+
+  <div class="container">
+    <header class="header">
+      <h1 class="brand">ANALYSIS METHOD SKILL</h1>
+      <p class="subtitle">分析人的训练 · 三层递进法 <span class="level-badge" id="currentLevel">第一层</span></p>
+    </header>
+
+    <div class="main-grid">
+      <!-- Left: Input Panel -->
+      <div>
+        <!-- Basic Info -->
+        <div class="card hard-shadow">
+          <h2 class="card-title">基本信息</h2>
+          <div class="form-group">
+            <label>目标人物姓名</label>
+            <input type="text" id="targetName" placeholder="如：同事A">
+          </div>
+          <div class="form-group">
+            <label">你与他的关系</label>
+            <input type="text" id="relation" placeholder="如：同部门同事">
+          </div>
+          <div class="form-group">
+            <label>观察周期</label>
+            <input type="text" id="period" placeholder="如：3个月">
+          </div>
+        </div>
+
+        <!-- Level Selector -->
+        <div class="card hard-shadow">
+          <h2 class="card-title">训练层级</h2>
+          <div class="level-selector">
+            <button class="level-btn active" data-level="level1" onclick="setLevel('level1')">
+              <strong>第一层</strong><br>缺点分析
+            </button>
+            <button class="level-btn" data-level="level2" onclick="setLevel('level2')">
+              <strong>第二层</strong><br>6+2 框架
+            </button>
+            <button class="level-btn" data-level="level3" onclick="setLevel('level3')">
+              <strong>第三层</strong><br>因果与干预
+            </button>
+          </div>
+          <div class="level-guide" id="levelGuide">
+            <strong>第一层：缺点分析</strong><br>
+            训练观察习惯，学会"抓形"。总结能力缺点、性格弱点、背景缺陷，提炼3-5个核心特征。
+          </div>
+        </div>
+
+        <!-- Facts Input -->
+        <div class="card hard-shadow">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+            <h2 class="card-title" style="margin-bottom:0;">具体事例（至少5个）</h2>
+            <button class="btn-small" onclick="addFact()">+ 添加事例</button>
+          </div>
+          <div id="factsList">
+            <!-- Facts generated by JS -->
+          </div>
+          <button class="btn btn-add" onclick="addFact()">
+            + 添加具体事例
+          </button>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="card hard-shadow">
+          <button class="btn btn-primary" onclick="analyze()">
+            开始分析 →
+          </button>
+          <div style="margin-top:1rem; display:flex; gap:0.5rem;">
+            <button class="btn btn-secondary" onclick="clearAll()">清空</button>
+            <button class="btn btn-secondary" onclick="loadExample()">加载示例</button>
+          </div>
+        </div>
+
+        <!-- Training Tracker -->
+        <div class="card hard-shadow">
+          <h2 class="card-title">本周训练打卡</h2>
+          <div class="tracker" id="tracker">
+            <div class="track-day" data-day="1"><div class="day-num">1</div></div>
+            <div class="track-day" data-day="2"><div class="day-num">2</div></div>
+            <div class="track-day" data-day="3"><div class="day-num">3</div></div>
+            <div class="track-day" data-day="4"><div class="day-num">4</div></div>
+            <div class="track-day" data-day="5"><div class="day-num">5</div></div>
+            <div class="track-day" data-day="6"><div class="day-num">6</div></div>
+            <div class="track-day" data-day="7"><div class="day-num">7</div></div>
+          </div>
+          <p style="margin-top:0.75rem; font-size:0.875rem; color:var(--text-muted);">
+            点击日期标记完成训练
+          </p>
+        </div>
+      </div>
+
+      <!-- Right: Results -->
+      <div>
+        <div class="card hard-shadow">
+          <h2 class="card-title">分析结果</h2>
+          <div id="status"></div>
+          <div id="results">
+            <!-- Results will be injected here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========== State ==========
+    let currentLevel = 'level1';
+    let factCount = 0;
+
+    const levelGuides = {
+      level1: '<strong>第一层：缺点分析</strong><br>训练观察习惯，学会"抓形"。总结能力缺点、性格弱点、背景缺陷，提炼3-5个核心特征，让人一说就"跃然纸上"。',
+      level2: '<strong>第二层：6+2框架</strong><br>系统化分析：家庭条件、父母关系、成长经历、心理状态、思维方式、做事方式 + 兴奋点、脆弱点。每一点都要有证据支撑。',
+      level3: '<strong>第三层：因果链条与干预</strong><br>找出矛盾点，分析作用机制，制定正向/负向干预策略。最终目的是有效干预，不是为了分析。'
+    };
+
+    const categories = [
+      { value: 'behavior', label: '行为' },
+      { value: 'speech', label: '言语' },
+      { value: 'background', label: '背景' },
+      { value: 'appearance', label: '外表' }
+    ];
+
+    // ========== Init ==========
+    document.addEventListener('DOMContentLoaded', () => {
+      addFact();
+      addFact();
+      loadTracker();
+    });
+
+    // ========== Level Selector ==========
+    function setLevel(level) {
+      currentLevel = level;
+      document.querySelectorAll('.level-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.level === level);
+      });
+      document.getElementById('levelGuide').innerHTML = levelGuides[level];
+      document.getElementById('currentLevel').textContent =
+        level === 'level1' ? '第一层' :
+        level === 'level2' ? '第二层' : '第三层';
+    }
+
+    // ========== Facts Management ==========
+    function addFact() {
+      factCount++;
+      const container = document.getElementById('factsList');
+      const factId = `fact-${factCount}`;
+
+      const html = `
+        <div class="fact-item" id="${factId}">
+          <button class="delete-btn" onclick="deleteFact('${factId}')">×</button>
+          <div class="category">${categories[0].label}</div>
+          <textarea placeholder="描述具体事例（时间、地点、他的言行举止）..." rows="3"></textarea>
+          <div style="margin-top:0.5rem;">
+            <label style="display:inline; margin-right:0.5rem;">类别：</label>
+            ${categories.map(c => `
+              <label style="display:inline; margin-right:1rem; cursor:pointer;">
+                <input type="radio" name="cat-${factId}" value="${c.value}" ${c.value===categories[0].value?'checked':''}
+                       onchange="setCategory('${factId}', this.value)">
+                ${c.label}
+              </label>
+            `).join('')}
+            <span style="float:right; color:var(--text-muted); font-size:0.75rem;">
+              置信度：<input type="range" min="0" max="100" value="80"
+                oninput="this.nextElementSibling.textContent=this.value"> <span>80</span>%
+            </span>
+          </div>
+        </div>
+      `;
+      container.insertAdjacentHTML('beforeend', html);
+    }
+
+    function deleteFact(id) {
+      document.getElementById(id).remove();
+    }
+
+    function setCategory(factId, value) {
+      const item = document.getElementById(factId);
+      item.querySelector('.category').textContent =
+        categories.find(c => c.value === value).label;
+    }
+
+    function clearAll() {
+      document.getElementById('factsList').innerHTML = '';
+      document.getElementById('targetName').value = '';
+      document.getElementById('relation').value = '';
+      document.getElementById('period').value = '';
+      addFact();
+    }
+
+    function loadExample() {
+      clearAll();
+      document.getElementById('targetName').value = '同事A';
+      document.getElementById('relation').value = '同部门同事';
+      document.getElementById('period').value = '3个月';
+
+      const examples = [
+        { cat: 'behavior', text: '从不主动找我帮忙，但会帮别人。问他经验会热情回答，但几乎不找我帮忙，有些见外。' },
+        { cat: 'background', text: '工作三年，认识面比较广，人缘不错。但不张扬，不提认识谁。' },
+        { cat: 'appearance', text: '有洁癖，办公桌一乱就受不了。对自己皮肤打理不错，但不能坚持锻炼。' },
+        { cat: 'background', text: '准备金融分析师考试，去年失利了。之前我通过了他流露出想介绍经验的意思，但他不主动交流。' },
+        { cat: 'behavior', text: '经常收到买书快递，但可能都不看。倒是喜欢看电视剧、综艺节目。' },
+        { cat: 'appearance', text: '饭局多，喝酒多，偏胖。不是酒鬼但身体状况不算太好。' },
+        { cat: 'behavior', text: '在喜欢的朋友面前很活跃，在同事面前比较沉闷。' },
+        { cat: 'background', text: '有自己的私车，能出国旅游，用得起一些奢华品牌，但不张扬。' }
+      ];
+
+      const container = document.getElementById('factsList');
+      container.innerHTML = '';
+      examples.forEach(ex => {
+        factCount++;
+        const factId = `fact-${factCount}`;
+        const catLabel = categories.find(c => c.value === ex.cat).label;
+        container.insertAdjacentHTML('beforeend', `
+          <div class="fact-item" id="${factId}">
+            <button class="delete-btn" onclick="deleteFact('${factId}')">×</button>
+            <div class="category">${catLabel}</div>
+            <textarea rows="3">${ex.text}</textarea>
+            <div style="margin-top:0.5rem;">
+              <label style="display:inline; margin-right:0.5rem;">类别：</label>
+              ${categories.map(c => `
+                <label style="display:inline; margin-right:1rem; cursor:pointer;">
+                  <input type="radio" name="cat-${factId}" value="${c.value}" ${c.value===ex.cat?'checked':''}
+                         onchange="setCategory('${factId}', this.value)">
+                  ${c.label}
+                </label>
+              `).join('')}
+              <span style="float:right; color:var(--text-muted); font-size:0.75rem;">
+                置信度：<input type="range" min="0" max="100" value="80"
+                  oninput="this.nextElementSibling.textContent=this.value"> <span>80</span>%
+              </span>
+            </div>
+          </div>
+        `);
+      });
+    }
+
+    // ========== Tracker ==========
+    function loadTracker() {
+      const saved = JSON.parse(localStorage.getItem('analysisTracker') || '{}');
+      const today = new Date().getDay() || 7; // 1-7
+      const weekStart = new Date();
+      weekStart.setDate(weekStart.getDate() - (today - 1));
+
+      for (let i = 1; i <= 7; i++) {
+        const date = new Date(weekStart);
+        date.setDate(date.getDate() + i - 1);
+        const dateStr = date.toISOString().split('T')[0];
+        const dayEl = document.querySelector(`.track-day[data-day="${i}"]`);
+
+        if (saved[dateStr]) {
+          dayEl.classList.add('done');
+        }
+
+        dayEl.onclick = () => {
+          dayEl.classList.toggle('done');
+          const current = JSON.parse(localStorage.getItem('analysisTracker') || '{}');
+          if (dayEl.classList.contains('done')) {
+            current[dateStr] = true;
+          } else {
+            delete current[dateStr];
+          }
+          localStorage.setItem('analysisTracker', JSON.stringify(current));
+        };
+      }
+    }
+
+    // ========== API Call ==========
+    async function analyze() {
+      const targetName = document.getElementById('targetName').value.trim();
+      const relation = document.getElementById('relation').value.trim();
+      const period = document.getElementById('period').value.trim();
+
+      if (!targetName || !relation) {
+        alert('请填写基本信息');
+        return;
+      }
+
+      const factEls = document.querySelectorAll('.fact-item');
+      if (factEls.length < 5) {
+        alert('请至少添加5个具体事例');
+        return;
+      }
+
+      const knownFacts = Array.from(factEls).map((el, i) => {
+        const text = el.querySelector('textarea').value.trim();
+        const cat = el.querySelector('input[type="radio"]:checked').value;
+        const confidence = parseInt(el.querySelector('input[type="range"]').value);
+        return { description: text, category: cat, confidence };
+      }).filter(f => f.description.length >= 10);
+
+      if (knownFacts.length < 5) {
+        alert('请完善具体事例描述（每个至少10字）');
+        return;
+      }
+
+      const statusEl = document.getElementById('status');
+      const resultsEl = document.getElementById('results');
+      statusEl.innerHTML = '<div class="loading">分析中</div>';
+      resultsEl.classList.remove('show');
+
+      try {
+        const res = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            targetName,
+            relation,
+            observationPeriod: period,
+            knownFacts,
+            trainingLevel: currentLevel
+          })
+        });
+
+        const json = await res.json();
+
+        if (!json.success) {
+          throw new Error(json.error || '请求失败');
+        }
+
+        renderResults(json.data);
+        statusEl.innerHTML = '';
+        resultsEl.classList.add('show');
+      } catch (err) {
+        statusEl.innerHTML = `<div class="error" style="color:var(--acid-pink); padding:1rem; border:2px solid var(--acid-pink); background:var(--surface-2);">❌ 错误: ${err.message}</div>`;
+      }
+    }
+
+    // ========== Render Results ==========
+    function renderResults(data) {
+      const d = data.data;
+
+      let html = `
+        <div class="result-section">
+          <h3>📊 分析报告 · ${d.level}</h3>
+      `;
+
+      // 核心特征（第一层）
+      if (d.weaknessAnalysis?.coreTraits?.length) {
+        html += `
+          <h4>🎯 核心特征（一说就跃然纸上）</h4>
+          <div>
+            ${d.weaknessAnalysis.coreTraits.map(t => `<span class="trait-tag">${t}</span>`).join('')}
+          </div>
+        `;
+      }
+
+      // 缺点分析
+      if (d.weaknessAnalysis) {
+        html += `
+          <h4 style="margin-top:1.5rem;">缺点分析</h4>
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-top:0.5rem;">
+            <div>
+              <strong style="color:var(--acid-pink)">能力缺点</strong>
+              <ul style="margin-left:1.25rem; margin-top:0.5rem;">
+                ${d.weaknessAnalysis.abilityWeaknesses.map(w => `<li>${w}</li>`).join('')}
+              </ul>
+            </div>
+            <div>
+              <strong style="color:var(--acid-pink)">性格弱点</strong>
+              <ul style="margin-left:1.25rem; margin-top:0.5rem;">
+                ${d.weaknessAnalysis.characterWeaknesses.map(w => `<li>${w}</li>`).join('')}
+              </ul>
+            </div>
+            <div>
+              <strong style="color:var(--acid-pink)">背景缺陷</strong>
+              <ul style="margin-left:1.25rem; margin-top:0.5rem;">
+                ${d.weaknessAnalysis.backgroundWeaknesses.map(w => `<li>${w}</li>`).join('')}
+              </ul>
+            </div>
+          </div>
+        `;
+      }
+
+      // 6+2 框架
+      if (d.sixPlusTwo) {
+        html += `
+          <h4 style="margin-top:1.5rem;">6+2 框架分析</h4>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+            <div class="evidence-item">
+              <strong style="color:var(--acid-orange)">家庭条件</strong>
+              <p>${d.sixPlusTwo.familyBackground.economicStatus}</p>
+              <p style="font-size:0.875rem; color:var(--text-muted); margin-top:0.5rem;">
+                推断依据：${d.sixPlusTwo.familyBackground.inference}
+              </p>
+            </div>
+            <div class="evidence-item">
+              <strong style="color:var(--acid-orange)">父母关系</strong>
+              <p>${d.sixPlusTwo.parentRelationship.status}</p>
+              <p style="font-size:0.875rem; color:var(--text-muted); margin-top:0.5rem;">
+                证据：${d.sixPlusTwo.parentRelationship.evidence.join('、')}
+              </p>
+            </div>
+            <div class="evidence-item">
+              <strong style="color:var(--acid-orange)">成长经历</strong>
+              <p>阻力：${d.sixPlusTwo.growthExperience.resistanceLevel} | 教育：${d.sixPlusTwo.growthExperience.educationStyle}</p>
+              <p style="font-size:0.875rem; margin-top:0.5rem;">形成特质：${d.sixPlusTwo.growthExperience.formedTraits.join('、')}</p>
+            </div>
+            <div class="evidence-item">
+              <strong style="color:var(--acid-orange)">心理状态</strong>
+              <p>${d.sixPlusTwo.psychology.personalityType} · ${d.sixPlusTwo.psychology.emotionPattern}</p>
+            </div>
+            <div class="evidence-item">
+              <strong style="color:var(--acid-orange)">思维方式</strong>
+              <p>${d.sixPlusTwo.thinkingMode.primaryMode} · ${d.sixPlusTwo.thinkingMode.logicAbility}</p>
+              <p style="font-size:0.875rem; margin-top:0.5rem;">习惯：${d.sixPlusTwo.thinkingMode.thinkingHabits.join('、')}</p>
+            </div>
+            <div class="evidence-item">
+              <strong style="color:var(--acid-orange)">做事方式</strong>
+              <p>${d.sixPlusTwo.behaviorStyle.timeManagement} · ${d.sixPlusTwo.behaviorStyle.selfStandard}</p>
+              <p style="font-size:0.875rem; margin-top:0.5rem;">矛盾：${d.sixPlusTwo.behaviorStyle.contradictions.join('、')}</p>
+            </div>
+          </div>
+
+          <h4 style="margin-top:1.5rem;">🎯 兴奋点与脆弱点</h4>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+            <div class="intervention-box positive">
+              <strong style="color:var(--acid-lime)">兴奋点（让他愿意配合）</strong>
+              <p style="margin:0.5rem 0;"><strong>触发场景：</strong>${d.sixPlusTwo.excitementPoints.triggerScenes.join('、')}</p>
+              <p><strong>行为表现：</strong>${d.sixPlusTwo.excitementPoints.behaviorWhenExcited}</p>
+              <p><strong>利用建议：</strong>${d.sixPlusTwo.excitementPoints.utilizationAdvice}</p>
+              <p style="font-size:0.875rem; color:var(--text-muted); margin-top:0.5rem;">
+                置信度：${d.sixPlusTwo.excitementPoints.confidence}%
+              </p>
+            </div>
+            <div class="intervention-box negative">
+              <strong style="color:var(--acid-pink)">脆弱点（让他消沉）</strong>
+              <p style="margin:0.5rem 0;"><strong>触发场景：</strong>${d.sixPlusTwo.vulnerabilityPoints.triggerScenes.join('、')}</p>
+              <p><strong>行为表现：</strong>${d.sixPlusTwo.vulnerabilityPoints.behaviorWhenDown}</p>
+              <p><strong>干预方法：</strong>${d.sixPlusTwo.vulnerabilityPoints.interventionMethods.join('、')}</p>
+            </div>
+          </div>
+        `;
+      }
+
+      // 因果链条（第三层）
+      if (d.causalChain?.contradictions?.length) {
+        html += `
+          <h4 style="margin-top:1.5rem;">🔗 因果链条与矛盾点</h4>
+          <p><strong>外部条件：</strong>${d.causalChain.externalConditions.join('、')}</p>
+          <p><strong>自身表现：</strong>${d.causalChain.internalManifestations.join('、')}</p>
+          <p><strong>作用机制：</strong>${d.causalChain.mechanism}</p>
+
+          <div style="margin-top:1rem;">
+            ${d.causalChain.contradictions.map((c, i) => `
+              <div class="contradiction-box">
+                <div class="surface">矛盾 ${i+1}：${c.surface}</div>
+                <div class="root">深层原因：${c.rootCause}</div>
+                <div class="evidence">证据：${c.evidence}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      // 干预策略
+      if (d.intervention) {
+        html += `
+          <h4 style="margin-top:1.5rem;">🎮 干预策略</h4>
+          <div class="intervention-box positive">
+            <strong>正向干预（建立良好关系）</strong>
+            <ul style="margin:0.5rem 0 0.5rem 1.25rem;">
+              ${d.intervention.positive.methods.map(m => `<li>${m}</li>`).join('')}
+            </ul>
+            <p style="font-size:0.875rem;">预期效果：${d.intervention.positive.expectedOutcome}</p>
+            <p style="font-size:0.875rem; color:var(--text-muted);">风险：${d.intervention.positive.risk}</p>
+          </div>
+          <div class="intervention-box negative">
+            <strong>负向干预（竞争时用）</strong>
+            <ul style="margin:0.5rem 0 0.5rem 1.25rem;">
+              ${d.intervention.negative.methods.map(m => `<li>${m}</li>`).join('')}
+            </ul>
+            <p style="font-size:0.875rem;">适用场景：${d.intervention.negative.useCase}</p>
+            ${d.intervention.negative.warning ? `<p class="warning-box">${d.intervention.negative.warning}</p>` : ''}
+          </div>
+          <div class="warning-box" style="border-color:var(--acid-orange);">
+            ${d.intervention.ethics}
+          </div>
+        `;
+      }
+
+      // 训练建议
+      if (d.trainingAdvice) {
+        html += `
+          <h4 style="margin-top:1.5rem;">📚 下一步训练</h4>
+          <p><strong>继续观察：</strong>${d.trainingAdvice.nextObservations.join('、')}</p>
+          <p><strong>验证方法：</strong>${d.trainingAdvice.validationPlan.join('、')}</p>
+          <p><strong>避免误区：</strong>${d.trainingAdvice.pitfalls.join('、')}</p>
+        `;
+      }
+
+      html += `</div>`;
+      resultsEl.innerHTML = html;
+    }
+  </script>
+</body>
+</html>

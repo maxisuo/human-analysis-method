@@ -1,0 +1,37 @@
+name: Deploy to Railway
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --only=production
+
+      - name: Deploy to Railway
+        uses: railwayapp/action@v1.0.8
+        with:
+          railway-token: ${{ secrets.RAILWAY_TOKEN }}
+          service: human-analysis-method
+          environment: production
+
+      - name: Output URL
+        run: |
+          echo "✅ Deployment complete!"
+          echo "🌐 Service URL: https://human-analysis-method-production.up.railway.app"
+          echo "📊 Health check: https://human-analysis-method-production.up.railway.app/api/health"

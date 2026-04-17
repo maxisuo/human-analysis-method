@@ -1,0 +1,29 @@
+{
+  "name": "human-analysis-method-skill",
+  "version": "1.0.0",
+  "description": "基于微信文章《分析人的训练》三层递进法的Skill：缺点分析→6+2框架→17页表格，培养观察、推测、验证习惯，最终实现有效干预",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node tests/test-skill.js"
+  },
+  "keywords": [
+    "analysis",
+    "psychology",
+    "human",
+    "intervention",
+    "skill"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "lowdb": "^5.1.0",
+    "openai": "^4.104.0",
+    "zod": "^3.24.1"
+  }
+}
