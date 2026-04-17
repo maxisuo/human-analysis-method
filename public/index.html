@@ -100,6 +100,143 @@
       vertical-align: middle;
     }
 
+    /* ========== Mobile-First Responsive ========== */
+    /* 手机端基础样式（默认） */
+    @media (max-width: 768px) {
+      .container {
+        padding: 0.75rem;
+      }
+
+      .header h1 {
+        font-size: 1.75rem;
+        text-shadow: 0 0 20px var(--acid-cyan);
+      }
+
+      .header .subtitle {
+        font-size: 0.9375rem;
+      }
+
+      .main-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem;
+      }
+
+      .level-selector {
+        flex-direction: column;
+        gap: 0.375rem;
+      }
+
+      .level-btn {
+        padding: 0.875rem 1rem;
+        font-size: 1rem;
+      }
+
+      .card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .card-title {
+        font-size: 1rem;
+      }
+
+      input[type="text"], textarea {
+        font-size: 1rem;
+        padding: 0.875rem;
+        min-height: 48px; /* 触摸友好 */
+      }
+
+      textarea {
+        min-height: 100px;
+      }
+
+      .fact-item {
+        padding: 1rem;
+        margin-bottom: 0.875rem;
+      }
+
+      .fact-item .delete-btn {
+        opacity: 1; /* 手机上始终显示删除按钮 */
+        font-size: 1.25rem;
+        top: 0.375rem;
+        left: 0.375rem;
+      }
+
+      .btn {
+        padding: 0.875rem 1.5rem;
+        font-size: 1rem;
+      }
+
+      .btn-primary {
+        width: 100%;
+      }
+
+      .trait-tag {
+        display: inline-block;
+        padding: 0.375rem 0.75rem;
+        margin: 0.25rem;
+        font-size: 0.875rem;
+      }
+
+      .result-section {
+        padding: 1rem;
+      }
+
+      .result-section h3 {
+        font-size: 1.25rem;
+      }
+
+      .result-section h4 {
+        font-size: 1rem;
+        margin-top: 1rem;
+      }
+
+      .result-section ul {
+        padding-left: 1.25rem;
+      }
+
+      .result-section li {
+        margin-bottom: 0.375rem;
+      }
+
+      /* 3列网格改为1列 */
+      .weakness-grid {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* 按钮组 */
+      .button-group {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      .button-group button {
+        flex: 1;
+        min-width: 120px;
+      }
+    }
+
+    /* 平板适配 */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .main-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.25rem;
+      }
+
+      .level-selector {
+        flex-direction: row;
+      }
+
+      .level-btn {
+        padding: 0.75rem;
+      }
+
+      .card {
+        padding: 1.125rem;
+      }
+    }
+
     /* ========== Grid ========== */
     .main-grid {
       display: grid;
@@ -228,6 +365,85 @@
       font-size: 0.9375rem;
     }
 
+    /* ========== Mobile Utilities ========== */
+    /* 手机端始终显示滚动条，避免布局跳动 */
+    @media (max-width: 768px) {
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--surface-1);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border-default);
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--acid-cyan);
+      }
+    }
+
+    /* 移动端结果卡片优化 */
+    @media (max-width: 768px) {
+      .result-card {
+        margin-bottom: 1rem;
+        padding: 1rem;
+      }
+
+      .result-card h5 {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .result-card p, .result-card ul {
+        font-size: 0.9375rem;
+        line-height: 1.7;
+      }
+
+      .evidence-item {
+        margin-bottom: 0.75rem;
+        padding: 0.75rem;
+        background: var(--surface-2);
+        border-left: 3px solid var(--acid-cyan);
+      }
+
+      .evidence-item strong {
+        display: block;
+        margin-bottom: 0.375rem;
+        font-size: 0.875rem;
+      }
+
+      .intervention-box {
+        padding: 1rem;
+        margin: 0.75rem 0;
+      }
+
+      .intervention-box ul {
+        margin-top: 0.5rem;
+      }
+    }
+
+    /* 按钮组响应式 */
+    .button-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .button-group button {
+      flex: 1;
+    }
+
+    /* 弱项分析网格（桌面端3列，手机端1列） */
+    .weakness-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    /* 事实项删除按钮 */
     .fact-item .delete-btn {
       position: absolute;
       top: 0.5rem;
@@ -236,17 +452,31 @@
       border: none;
       color: var(--text-muted);
       cursor: pointer;
-      font-size: 1rem;
+      font-size: 1.125rem;
       opacity: 0;
-      transition: opacity 0.15s;
+      transition: all 0.15s;
+      padding: 0.25rem 0.5rem;
+      line-height: 1;
     }
 
-    .fact-item:hover .delete-btn {
+    .fact-item:hover .delete-btn,
+    .fact-item:active .delete-btn {
       opacity: 1;
     }
 
     .fact-item .delete-btn:hover {
       color: var(--acid-pink);
+      transform: scale(1.2);
+    }
+
+    /* 手机端始终显示删除按钮 */
+    @media (max-width: 768px) {
+      .fact-item .delete-btn {
+        opacity: 1;
+        top: 0.25rem;
+        left: 0.25rem;
+        font-size: 1rem;
+      }
     }
 
     /* ========== Buttons ========== */
