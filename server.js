@@ -69,9 +69,27 @@ app.get('/api/skill', (req, res) => {
   });
 });
 
-// 保存训练记录（可选）
+// 保存训练记录（完整版）
 app.post('/api/save-record', (req, res) => {
-  const { targetName, analysis, date } = req.body;
+  const {
+    sessionId,
+    targetName,
+    relation,
+    trainingLevel,
+    observationPeriod,
+    knownFacts,
+    hypotheses,
+    analysis,  // 完整的分析结果
+    date
+  } = req.body;
+
+  if (!sessionId || !targetName || !analysis) {
+    return res.status(400).json({
+      success: false,
+      error: '缺少必要字段: sessionId, targetName, analysis'
+    });
+  }
+
   const recordsPath = join(__dirname, 'data', 'records.json');
 
   let records = [];
@@ -79,29 +97,97 @@ app.post('/api/save-record', (req, res) => {
     records = JSON.parse(readFileSync(recordsPath, 'utf-8'));
   }
 
-  records.push({
-    id: Date.now(),
+  const newRecord = {
+    id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
+    sessionId,
     targetName,
+    relation: relation || '',
+    trainingLevel: trainingLevel || 'level1',
+    observationPeriod: observationPeriod || '',
+    knownFacts: knownFacts || [],
+    hypotheses: hypotheses || [],
+    analysis,
     date: date || new Date().toISOString().split('T')[0],
-    analysis
-  });
+    updatedAt: new Date().toISOString()
+  };
 
-  // 保持最近100条
-  records = records.slice(-100);
+  records.push(newRecord);
+
+  // 保持每个 session 最多 100 条，全局最多 1000 条
+  const sessionRecords = records.filter(r => r.sessionId === sessionId);
+  if (sessionRecords.length > 100) {
+    const excess = sessionRecords.slice(0, sessionRecords.length - 100);
+    const excessIds = excess.map(r => r.id);
+    records = records.filter(r => !excessIds.includes(r.id));
+  }
+  if (records.length > 1000) {
+    records = records.slice(-1000);
+  }
 
   writeFileSync(recordsPath, JSON.stringify(records, null, 2));
-  res.json({ success: true, id: records[records.length-1].id });
+  res.json({ success: true, id: newRecord.id });
 });
 
-// 获取训练记录
+// 获取训练记录（按 sessionId 过滤）
 app.get('/api/records', (req, res) => {
+  const { sessionId } = req.query;
   const recordsPath = join(__dirname, 'data', 'records.json');
-  if (existsSync(recordsPath)) {
-    const records = JSON.parse(readFileSync(recordsPath, 'utf-8'));
-    res.json(records);
-  } else {
-    res.json([]);
+
+  if (!existsSync(recordsPath)) {
+    return res.json([]);
   }
+
+  let records = JSON.parse(readFileSync(recordsPath, 'utf-8'));
+
+  // 按 sessionId 过滤
+  if (sessionId) {
+    records = records.filter(r => r.sessionId === sessionId);
+  }
+
+  // 按更新时间倒序
+  records.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+  res.json(records);
+});
+
+// 删除记录
+app.delete('/api/records/:id', (req, res) => {
+  const { id } = req.params;
+  const recordsPath = join(__dirname, 'data', 'records.json');
+
+  if (!existsSync(recordsPath)) {
+    return res.status(404).json({ success: false, error: '记录不存在' });
+  }
+
+  let records = JSON.parse(readFileSync(recordsPath, 'utf-8'));
+  const initialLength = records.length;
+  records = records.filter(r => r.id !== id);
+
+  if (records.length === initialLength) {
+    return res.status(404).json({ success: false, error: '记录不存在' });
+  }
+
+  writeFileSync(recordsPath, JSON.stringify(records, null, 2));
+  res.json({ success: true });
+});
+
+// 获取单条记录详情
+app.get('/api/records/:id', (req, res) => {
+  const { id } = req.params;
+  const recordsPath = join(__dirname, 'data', 'records.json');
+
+  if (!existsSync(recordsPath)) {
+    return res.status(404).json({ success: false, error: '记录不存在' });
+  }
+
+  const records = JSON.parse(readFileSync(recordsPath, 'utf-8'));
+  const record = records.find(r => r.id === id);
+
+  if (!record) {
+    return res.status(404).json({ success: false, error: '记录不存在' });
+  }
+
+  res.json(record);
 });
 
 app.listen(PORT, () => {
