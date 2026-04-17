@@ -241,7 +241,7 @@ ${validated.hypotheses && validated.hypotheses.length > 0 ?
   console.log('🔧 正在调用 API...');
   const response = await openai.chat.completions.create({
     model: process.env.MODEL || 'gpt-4o',
-    max_tokens: 2500,
+    max_tokens: 1500,  // 减少 token 数量，加快响应
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userMessage }

@@ -786,6 +786,10 @@
       statusEl.innerHTML = '<div class="loading">分析中</div>';
       resultsEl.classList.remove('show');
 
+      // 设置 60 秒超时
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000);
+
       try {
         const res = await fetch('/api/analyze', {
           method: 'POST',
@@ -796,8 +800,10 @@
             observationPeriod: period,
             knownFacts,
             trainingLevel: currentLevel
-          })
+          }),
+          signal: controller.signal
         });
+        clearTimeout(timeoutId);
 
         const json = await res.json();
 
